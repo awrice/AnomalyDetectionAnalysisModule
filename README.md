@@ -50,7 +50,8 @@ Configurations are defined using JSON. Each configuration must contain the follo
 
 ```json
 {
-    "dataset_name": "lro/lro1", // uses a subfolder in the lro directory -- full path to our data would be "ADAM/datasets/lro/lro1/data.csv"
+    "dataset_name": "lro/lro1", // uses a subfolder in the lro directory -- full path to 
+                                // our data would be "ADAM/datasets/lro/lro1/data.csv"
     "algorithm_name": "alg2", // leads us to "ADAM/algorithms/alg2/run.sh"
     "parameters": {
         "hey": "bam",
@@ -124,24 +125,36 @@ DATASET=$1 # retrieve argument 1
 PARAMETERS=$2 # retrieve argument 2
 OUTPUT_FILE="res.csv" # here's where we'll save the predicted data
 
-# Note that anything printed in the run.sh script must always be printed to STDERR (i.e., using ">&2"), because STDOUT is reserved for our final JSON output. It is recommended to have "run.sh" completely silent (no output besides the unprinted json output), but the following line is how a message could be printed to be seen while running our mother script.
+# Note that anything printed in the run.sh script must always be printed to STDERR (i.e., using
+# ">&2"), because STDOUT is reserved for our final JSON output. It is recommended to have "run.
+# sh" completely silent (no output besides the unprinted json output), but the following line is
+# how a message could be printed to be seen while running our mother script.
 echo "Running!" >&2
 
 # It's a good idea to find the path the algorithm is stored in
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# It's recommended to create your own environments (in this case, a python env) to make sure dependencies aren't an issue. Here, our algorithm has an environment called ".env" and we are accessing the python version inside that environment. These environments should always be stored in the algorithm's main folder.
-# Our dataset abosolute path, parameters, and our output file name are all passed into our algorithm script (in this case, we've set up -d, -p, and -o flags in our python script, but the exact implementation of how these values are passed into the script are up to the algorithm creator)
+# It's recommended to create your own environments (in this case, a python env) to make sure 
+# dependencies aren't an issue. Here, our algorithm has an environment called ".env" and we are
+# accessing the python version inside that environment. These environments should always be
+# stored in the algorithm's main folder.
+# Our dataset abosolute path, parameters, and our output file name are all passed into our
+# algorithm script (in this case, we've set up -d, -p, and -o flags in our python script, but
+# the exact implementation of how these values are passed into the script are up to the
+# algorithm creator)
 "$SCRIPT_DIR/.env/bin/python" $SCRIPT_DIR/alg1.py \
     -d "$DATASET" \
     -p "$PARAMETERS" \
     -o "$SCRIPT_DIR/results/$OUTPUT_FILE" >&2
 
-# After we let the script do its thing, we expect the output file to be populated with its predictions. If you'd like to check on that output, you could do that here
+# After we let the script do its thing, we expect the output file to be populated with its
+# predictions. If you'd like to check on that output, you could do that here
 
-# It's recommended to pass any errors that occurred back to the mother script (ADAM/main.py) rather than handling them in "run.sh".
+# It's recommended to pass any errors that occurred back to the mother script (ADAM/main.py
+# rather than handling them in "run.sh".
 STATUS=$? # Gets the exit code of the most recent command
-# If the exit code of our python program wasn't 0, we'll return an error -- this error is handled by the mother script
+# If the exit code of our python program wasn't 0, we'll return an error -- this error is
+# handled by the mother script
 if [ $STATUS -ne 0 ]; then
     exit $STATUS
 fi
