@@ -114,6 +114,8 @@ It is also possible to run any number of algorithms against any number of datase
 ## algorithms
 Algorithms in ADAM are put in folders. Each algorithm folder must have at least the following: (1) a single "run.sh" file, (2) a directory entitled "results", and (3) a "requirements.json" file. How the algorithm runs is completely up to the designer of that algorithm. There are absolutely no limitations on algorithms in ADAM, except for how their input and output look. Input to the "run.sh" file is very simple: argument 1 is the universal path to the dataset folder, and argument 2 is the parameters dictionary given to the algorithm. The output  of "run.sh" (passed back to the mother script with STDOUT) must be parsable json. Output json must contain at least 2 keys: First, "status", which is a flag about whether the algorithm ran normally or threw an error -- "success" in this field represents an error-free process; "fail" or any other string signifies that something went wrong. Second, "output", which contains a string of the name of the output file stored in this algorithm's "results" folder.
 
+### run.sh
+
 An example algorithm's run script might look like this:
 ```bash
 #!/bin/bash
@@ -148,4 +150,30 @@ fi
 echo "{\"status\": \"success\", \"output\": \"$OUTPUT_FILE\"}"
 ```
 
-As for the "requirements.json" file, all algorithms must specify for the mother script exactly what they require to be provided in the "parameters" dictionary given. Examples of requirements are shown below
+### requirements.json
+
+As for the "requirements.json" file, all algorithms must specify for the mother script exactly what they require to be provided in the "parameters" dictionary given. These requirements are simple lists of keys (e.g., I'd like to provide a number of hidden layers to put in my neural net rather than having them hard_coded in somewhere else). These keys must appear in the "parameters" object passed into the algorithm. If an algorithm is not given all the required keys, the mother script will throw an error. Examples of requirements are shown below.
+
+**Example 1**: In the following requirements.json file, we can see that anyone who wants to run this algorithm must provide at least "hidden_layer_count", "learning_rate", and "optimizer" keys in the parameters object. If these keys are not provided, the mother script will throw an error.
+```json
+["hidden_layer_count", "learning_rate", "optimizer"]
+```
+
+**Example 2**: This is an example of an INVALID requirements.json file. Although this is a valid list in json (meaning, there is no Syntax error), since dictionaries in json cannot have non-string type keys, these requirements will never be satisfied. 
+```json
+[
+    1, // INVALID
+    2, // INVALID
+    "hello",
+    "goodbye"
+]
+```
+
+**Example 3**: If an algorithm requires nothing except the default data provided in the dataset's "data.csv" file, an empty list in requirements.json is appropriate.
+```json
+[] // this algorithm doesn't need any parameters
+```
+
+Keep in mind, extra parameters *not* found in requirements.json are also passed into the algorithm. If a certain parameter is optional, it is not reflected in requirements.json, but in documentation for that algorithm instead. For example, if the neural net were being created in **Example 1**, and we wanted an optional "epochs" key, we could simply put out "epochs" key in the configuration file (in the parameters for this algorithm), and pass the algorithm the value we'd like to use. Designers of algorithms should be advised, however, that since the presence of these parameters is not guaranteed, the algorithm is in charge of checking for their presence, and setting default values for them where needed.
+
+
