@@ -1,0 +1,8 @@
+{
+    "dataset_name": "lro/lro1",
+    "algorithm_name": ["alg2", "test_alg"],
+    "parameters": [
+        {"yes": 1, "hey": 1, "no": 1},
+        {"yer": 1}
+    ]
+}
